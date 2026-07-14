@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Facturas - Onassis Grúa</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background-color: #e2e8f0; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            gap: 30px; 
+            justify-content: center;
+        }
+        a   
+        .panel-control { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 8px; 
+            width: 320px; 
+            height: fit-content; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+        }
+        .panel-control label { 
+            display: block; 
+            margin-top: 15px; 
+            margin-bottom: 5px; 
+            font-weight: bold; 
+            font-size: 14px; 
+        }
+        .panel-control input { 
+            width: 100%; 
+            padding: 10px; 
+            box-sizing: border-box; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+        }
+        .btn-generar { 
+            width: 100%; 
+            margin-top: 25px; 
+            padding: 12px; 
+            background-color: #2563eb; 
+            color: white; 
+            border: none; 
+            border-radius: 4px; 
+            font-size: 16px; 
+            font-weight: bold; 
+            cursor: pointer; 
+        }
+        .btn-generar:hover { background-color: #1d4ed8; }
+
+        .factura-a4 { 
+            width: 210mm; 
+            min-height: 297mm; 
+            background: white; 
+            padding: 25mm; 
+            box-sizing: border-box; 
+            box-shadow: 0 10px 15px rgba(0,0,0,0.1); 
+            position: relative; 
+        }
+
+        .cabecera { 
+            display: flex; 
+            justify-content: space-between; 
+            border-bottom: 2px solid #000; 
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+        }
+        .cabecera h1 { margin: 0; font-size: 28px; }
+        .cabecera-derecha { text-align: right; }
+        .cabecera-derecha h2 { margin: 0 0 5px 0; font-size: 20px; }
+        .cabecera-derecha p { margin: 0; font-size: 14px; color: #555; }
+        
+        .datos-cliente { margin-bottom: 30px; font-size: 16px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; }
+        th, td { border: 1px solid #000; padding: 12px; text-align: left; }
+        th { background-color: #f8fafc; font-weight: bold; }
+        .col-cant { width: 15%; text-align: center; }
+        .text-right { text-align: right; }
+        
+        .firmas { 
+            display: flex; 
+            justify-content: space-between; 
+            margin-top: 80px; 
+        }
+        .firma-linea { 
+            width: 40%; 
+            border-top: 1px solid #000; 
+            padding-top: 8px; 
+            text-align: center; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+    <div class="panel-control">
+        <h2 style="margin-top: 0;">Generar Factura</h2>
+        
+        <label>Número de Factura</label>
+        <input type="number" id="inFactura" value="120">
+        
+        <label>Fecha</label>
+        <input type="date" id="inFecha" value="2026-07-12">
+        
+        <label>Cliente</label>
+        <input type="text" id="inCliente" value="Moronta">
+        
+        <label>Descripción</label>
+        <input type="text" id="inDescripcion" value="Rescate y levantamiento de furgón y camión Mac de Moronta">
+        
+        <label>Monto (RD$)</label>
+        <input type="number" id="inMonto" value="39000">
+
+        <button class="btn-generar" onclick="prepararYDescargar()">Descargar PDF</button>
+    </div>
+
+    <div id="documento-factura" class="factura-a4">
+        <div class="cabecera">
+            <div>
+                <h1>Onassis Grúa</h1>
+            </div>
+            <div class="cabecera-derecha">
+                <h2 id="outFactura">Factura 120</h2>
+                <p id="outFecha">12 de Julio de 2026</p>
+            </div>
+        </div>
+
+        <div class="datos-cliente">
+            <p><strong>Cliente:</strong> <span id="outCliente">Moronta</span></p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th class="col-cant">CANT.</th>
+                    <th>DESCRIPCIÓN</th>
+                    <th class="text-right">IMPORTE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="col-cant">1</td>
+                    <td id="outDescripcion">Rescate y levantamiento de furgón y camión Mac de Moronta</td>
+                    <td class="text-right" id="outMonto">39,000.00</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="2" class="text-right">TOTAL RD$</th>
+                    <th class="text-right" id="outTotal">39,000.00</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="firmas">
+            <div class="firma-linea">
+                Recibido
+            </div>
+            <div class="firma-linea">
+                Entregado<br>
+                <span style="font-weight: normal;">Jorge O. Domínguez</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function prepararYDescargar() {
+            // 1. Tomar los valores del formulario e inyectarlos en la plantilla
+            document.getElementById('outFactura').innerText = "Factura " + document.getElementById('inFactura').value;
+            document.getElementById('outCliente').innerText = document.getElementById('inCliente').value;
+            document.getElementById('outDescripcion').innerText = document.getElementById('inDescripcion').value;
+            
+            // Convertir la fecha al formato 
+            const fechaInput = document.getElementById('inFecha').value;
+            if (fechaInput) {
+                const fechaObj = new Date(fechaInput + 'T00:00:00'); 
+                const opcionesFecha = { day: 'numeric', month: 'long', year: 'numeric' };
+                document.getElementById('outFecha').innerText = fechaObj.toLocaleDateString('es-ES', opcionesFecha);
+            }
+
+            // Formatear el monto numérico a formato financiero 
+            const montoCrudo = parseFloat(document.getElementById('inMonto').value) || 0;
+            const montoFormateado = montoCrudo.toLocaleString('en-US', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+            document.getElementById('outMonto').innerText = montoFormateado;
+            document.getElementById('outTotal').innerText = montoFormateado;
+
+            // 2. Configurar la exportación de html2pdf
+            const elemento = document.getElementById('documento-factura');
+            const numFactura = document.getElementById('inFactura').value;
+            
+            const configuracion = {
+                margin:       0, // El margen ya lo maneja el CSS con padding
+                filename:     `Factura_${numFactura}.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true }, // scale:2 mejora la resolución del texto en el PDF
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // Ejecutar la librería: Selecciona, convierte y guarda
+            html2pdf().set(configuracion).from(elemento).save();
+        }
+    </script>
+</body>
+</html>
