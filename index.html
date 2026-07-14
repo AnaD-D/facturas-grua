@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧾</text></svg>">
     <title>Generador de Facturas - Onassis Grúa</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
@@ -74,6 +75,15 @@
         .cabecera-derecha { text-align: right; }
         .cabecera-derecha h2 { margin: 0 0 5px 0; font-size: 20px; }
         .cabecera-derecha p { margin: 0; font-size: 14px; color: #555; }
+
+        .logo-empresa {
+            max-width: 120px; 
+            max-height: 70px; 
+            object-fit: contain; 
+            margin-bottom: 15px; 
+            display: block;
+            margin-left: auto; 
+        }
         
         .datos-cliente { margin-bottom: 30px; font-size: 16px; }
         
@@ -126,9 +136,11 @@
                 <h1>Onassis Grúa</h1>
             </div>
             <div class="cabecera-derecha">
+                <img src="./media/Logo-gruas.png" alt="Logo Onassis" class="logo-empresa">
                 <h2 id="outFactura">Factura 120</h2>
                 <p id="outFecha">12 de Julio de 2026</p>
             </div>
+            
         </div>
 
         <div class="datos-cliente">
