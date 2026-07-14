@@ -105,6 +105,24 @@
             text-align: center; 
             font-weight: bold; 
         }
+    
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column; 
+                align-items: center;   
+                padding: 15px 5px;
+            }
+            
+            .panel-control {
+                width: 90%;             
+                max-width: 400px;      
+                margin-bottom: 30px;    
+            }
+
+            .factura-a4 {
+                flex-shrink: 0;         
+            }
+        }
     </style>
 </head>
 <body>
